@@ -7,8 +7,8 @@ public class Huevos extends Producto {
         super(7); // Caduca en 7 días
     }
     
-    public void registrarPuesta(int tipoGallina, int provincia, int ciudad, 
-                               int granja, int unidades) {
+    public int setHuevos(int tipoGallina, int provincia, int ciudad, 
+                                int granja, int unidades) {
         validarIndices(tipoGallina, provincia, ciudad, granja);
         
         if (unidades < 0) {
@@ -16,6 +16,7 @@ public class Huevos extends Producto {
         }
         
         registroPuesta[tipoGallina][provincia][ciudad][granja] += unidades;
+        return registroPuesta[tipoGallina][provincia][ciudad][granja];
     }
     
     public int obtenerPuesta(int tipoGallina, int provincia, int ciudad, int granja) {

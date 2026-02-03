@@ -8,11 +8,12 @@ public class Carne extends Producto {
         this.stock = 1000;
     }
     
-    public void agregarStock(int kilos) {
+    public int stock_carne(int kilos) {
         if (kilos < 0) {
             throw new IllegalArgumentException("Los kilos no pueden ser negativos");
         }
         this.stock += kilos;
+        return this.stock;
     }
     
     public boolean retirarStock(int kilos) {

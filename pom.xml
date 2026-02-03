@@ -35,7 +35,7 @@
             <artifactId>JTattoo</artifactId>
             <version>1.6.13</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/jtattoo-1.6.13.jar</systemPath>
+            <systemPath>${project.basedir}/lib/JTattoo-1.6.13.jar</systemPath>
         </dependency>
     </dependencies>
     

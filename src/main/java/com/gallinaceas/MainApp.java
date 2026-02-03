@@ -149,8 +149,8 @@ public class MainApp extends JFrame {
                 
                 int totalEnPuesto = gestionHuevos.setHuevos(t, p, c, g, u);
                 resArea.setText("Puesta registrada.\nTotal acumulado en este puesto: " + totalEnPuesto + 
-                                "\nFecha Envasado: " + gestionHuevos.fecha_envasado + 
-                                "\nCaducidad (Día): " + gestionHuevos.dia_caducidad);
+                                "\nFecha Envasado: " + gestionHuevos.getFechaEnvasadoFormateada() + 
+                                "\nCaducidad: " + gestionHuevos.getFechaCaducidadFormateada());
                 logger.info("Registrada puesta en [{}][{}][{}][{}]: {} uds", t, p, c, g, u);
             } catch (ArrayIndexOutOfBoundsException ex) {
                 JOptionPane.showMessageDialog(this, "Índice fuera de rango: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
