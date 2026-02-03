@@ -1,5 +1,6 @@
 package com.gallinaceas;
 
+
 public class Carne extends Producto {
     private int stock;
     
@@ -8,6 +9,7 @@ public class Carne extends Producto {
         this.stock = 1000;
     }
     
+
     public int stock_carne(int kilos) {
         if (kilos < 0) {
             throw new IllegalArgumentException("Los kilos no pueden ser negativos");
@@ -31,7 +33,7 @@ public class Carne extends Producto {
     @Override
     public String toString() {
         return String.format(
-            "Carne [Envasado: %s | Caduca: %s | Stock: %d kg | Días restantes: %d]",
+            "🥩 Carne [Envasado: %s | Caduca: %s | Stock: %d kg | Días restantes: %d]",
             getFechaEnvasadoFormateada(),
             getFechaCaducidadFormateada(),
             stock,

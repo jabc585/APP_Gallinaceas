@@ -1,4 +1,3 @@
-// Producto.java - Clase base abstracta mejorada
 package com.gallinaceas;
 
 import java.time.LocalDate;

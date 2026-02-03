@@ -2,40 +2,45 @@ package com.gallinaceas;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class MainApp extends JFrame {
     
-    private static final int WINDOW_WIDTH = 600;
-    private static final int WINDOW_HEIGHT = 450;
-    
-    // Instancias de las nuevas clases
     private final Gallinaceas empresa;
     private final Carne gestionCarne;
     private final Huevos gestionHuevos;
-
+    
     public MainApp() {
         this.empresa = new Gallinaceas();
         this.gestionCarne = new Carne();
         this.gestionHuevos = new Huevos();
+        
         initUI();
     }
 
     private void initUI() {
         setTitle("Gallinaceas S.A. - Gestión de Producción");
-        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        
+        // Usar look and feel del sistema
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            System.err.println("No se pudo cargar el look and feel del sistema: " + e.getMessage());
+        }
 
         JTabbedPane tabbedPane = new JTabbedPane();
-
-        tabbedPane.addTab("Empresa", createEmpresaPanel());
-        tabbedPane.addTab("Gestión de Carne", createCarnePanel());
-        tabbedPane.addTab("Gestión de Huevos", createHuevosPanel());
+        tabbedPane.addTab("🏢 Empresa", crearPanelEmpresa());
+        tabbedPane.addTab("🥩 Carne", crearPanelCarne());
+        tabbedPane.addTab("🥚 Huevos", crearPanelHuevos());
 
         add(tabbedPane);
     }
 
-    private JPanel createEmpresaPanel() {
+    private JPanel crearPanelEmpresa() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
@@ -46,102 +51,170 @@ public class MainApp extends JFrame {
         infoArea.setWrapStyleWord(true);
         panel.add(new JScrollPane(infoArea), BorderLayout.CENTER);
 
-        JButton btnActualizar = new JButton("Registrar Nuevos Empleados");
+        JPanel inputPanel = new JPanel(new FlowLayout());
+        inputPanel.add(new JLabel("Nuevos empleados:"));
+        JTextField txtEmpleados = new JTextField(10);
+        inputPanel.add(txtEmpleados);
+        
+        JButton btnActualizar = new JButton("Registrar");
         btnActualizar.addActionListener(e -> {
-            String input = JOptionPane.showInputDialog(this, "Número de nuevas altas:");
-            if (input != null && !input.trim().isEmpty()) {
-                try {
-                    int nuevos = Integer.parseInt(input.trim());
-                    if (nuevos < 0) throw new IllegalArgumentException("No puede ser negativo");
-                    empresa.total_emp(nuevos);
-                    infoArea.setText(empresa.toString());
-                    System.out.println("Registrados " + nuevos + " nuevos empleados");
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Número inválido", "Error", JOptionPane.ERROR_MESSAGE);
-                } catch (IllegalArgumentException ex) {
-                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                }
+            String input = txtEmpleados.getText().trim();
+            if (input.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Ingrese el número de empleados", 
+                    "Advertencia", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            try {
+                int nuevos = Integer.parseInt(input);
+                empresa.total_emp(nuevos);
+                infoArea.setText(empresa.toString());
+                txtEmpleados.setText("");
+                JOptionPane.showMessageDialog(this, 
+                    "Empleados registrados correctamente", 
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Número inválido", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+        inputPanel.add(btnActualizar);
 
-        panel.add(btnActualizar, BorderLayout.SOUTH);
+        panel.add(inputPanel, BorderLayout.SOUTH);
         return panel;
     }
 
-    private JPanel createCarnePanel() {
+    private JPanel crearPanelCarne() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JPanel inputPanel = new JPanel(new GridLayout(2, 1, 5, 5));
-        inputPanel.add(new JLabel("Introduzca kilos a añadir al stock:"));
-        JTextField txtKilos = new JTextField();
-        inputPanel.add(txtKilos);
+        JTextArea infoArea = new JTextArea(gestionCarne.toString());
+        infoArea.setEditable(false);
+        infoArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        panel.add(new JScrollPane(infoArea), BorderLayout.CENTER);
 
-        JTextArea resArea = new JTextArea(gestionCarne.toString());
-        resArea.setEditable(false);
-
-        JButton btnCalcular = new JButton("Actualizar Stock de Carne");
-        btnCalcular.addActionListener(e -> {
+        JPanel inputPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        
+        // Añadir stock
+        inputPanel.add(new JLabel("Kilos a añadir:"));
+        JTextField txtAnadir = new JTextField();
+        inputPanel.add(txtAnadir);
+        
+        JButton btnAnadir = new JButton("Añadir Stock");
+        btnAnadir.addActionListener(e -> {
             try {
-                String texto = txtKilos.getText().trim();
+                String texto = txtAnadir.getText().trim();
                 if (texto.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Por favor, introduzca los kilos", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Ingrese los kilos", 
+                        "Advertencia", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
+                
                 int kilos = Integer.parseInt(texto);
-                if (kilos < 0) throw new IllegalArgumentException("Los kilos no pueden ser negativos");
                 gestionCarne.stock_carne(kilos);
-                resArea.setText(gestionCarne.toString());
-                System.out.println("Actualizado stock de carne: +" + kilos + " kg");
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Introduzca un número válido", "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                infoArea.setText(gestionCarne.toString());
+                txtAnadir.setText("");
+                
+                JOptionPane.showMessageDialog(this, 
+                    String.format("Se añadieron %d kg\nStock actual: %d kg", 
+                        kilos, gestionCarne.getStock()),
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        // Retirar stock
+        inputPanel.add(new JLabel("Kilos a retirar:"));
+        JTextField txtRetirar = new JTextField();
+        inputPanel.add(txtRetirar);
+        
+        JButton btnRetirar = new JButton("Retirar Stock");
+        btnRetirar.addActionListener(e -> {
+            try {
+                String texto = txtRetirar.getText().trim();
+                if (texto.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Ingrese los kilos", 
+                        "Advertencia", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                
+                int kilos = Integer.parseInt(texto);
+                boolean exito = gestionCarne.retirarStock(kilos);
+                
+                if (exito) {
+                    infoArea.setText(gestionCarne.toString());
+                    txtRetirar.setText("");
+                    JOptionPane.showMessageDialog(this, 
+                        String.format("Se retiraron %d kg\nStock restante: %d kg", 
+                            kilos, gestionCarne.getStock()),
+                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, 
+                        "No hay suficiente stock", 
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                    
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        panel.add(inputPanel, BorderLayout.NORTH);
-        panel.add(new JScrollPane(resArea), BorderLayout.CENTER);
-        panel.add(btnCalcular, BorderLayout.SOUTH);
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        buttonPanel.add(btnAnadir);
+        buttonPanel.add(btnRetirar);
 
+        panel.add(inputPanel, BorderLayout.NORTH);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+        
         return panel;
     }
 
-    private JPanel createHuevosPanel() {
+    private JPanel crearPanelHuevos() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JPanel grid = new JPanel(new GridLayout(5, 2, 5, 5));
-        grid.add(new JLabel("Tipo Gallina (0-3):"));
+        JTextArea infoArea = new JTextArea(gestionHuevos.toString() + "\n\nComplete los datos para registrar una puesta:");
+        infoArea.setEditable(false);
+        infoArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        panel.add(new JScrollPane(infoArea), BorderLayout.CENTER);
+
+        JPanel formPanel = new JPanel(new GridLayout(5, 2, 5, 5));
+        
+        formPanel.add(new JLabel("Tipo Gallina (0-3):"));
         JTextField txtTipo = new JTextField();
-        grid.add(txtTipo);
+        formPanel.add(txtTipo);
         
-        grid.add(new JLabel("Provincia (0-99):"));
+        formPanel.add(new JLabel("Provincia (0-99):"));
         JTextField txtProv = new JTextField();
-        grid.add(txtProv);
+        formPanel.add(txtProv);
         
-        grid.add(new JLabel("Ciudad (0-999):"));
+        formPanel.add(new JLabel("Ciudad (0-999):"));
         JTextField txtCiudad = new JTextField();
-        grid.add(txtCiudad);
+        formPanel.add(txtCiudad);
         
-        grid.add(new JLabel("Granja (0-99):"));
+        formPanel.add(new JLabel("Granja (0-99):"));
         JTextField txtGranja = new JTextField();
-        grid.add(txtGranja);
+        formPanel.add(txtGranja);
         
-        grid.add(new JLabel("Unidades:"));
-        JTextField txtUds = new JTextField();
-        grid.add(txtUds);
+        formPanel.add(new JLabel("Unidades:"));
+        JTextField txtUnidades = new JTextField();
+        formPanel.add(txtUnidades);
 
-        JTextArea resArea = new JTextArea("Registros de puesta de huevos podrán verse aquí.");
-        resArea.setEditable(false);
-
-        JButton btnGenerar = new JButton("Registrar Puesta");
-        btnGenerar.addActionListener(e -> {
+        JButton btnRegistrar = new JButton("Registrar Puesta");
+        btnRegistrar.addActionListener(e -> {
             try {
                 if (txtTipo.getText().trim().isEmpty() || txtProv.getText().trim().isEmpty() || 
                     txtCiudad.getText().trim().isEmpty() || txtGranja.getText().trim().isEmpty() || 
-                    txtUds.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    txtUnidades.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios", 
+                        "Advertencia", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 
@@ -149,44 +222,71 @@ public class MainApp extends JFrame {
                 int p = Integer.parseInt(txtProv.getText().trim());
                 int c = Integer.parseInt(txtCiudad.getText().trim());
                 int g = Integer.parseInt(txtGranja.getText().trim());
-                int u = Integer.parseInt(txtUds.getText().trim());
+                int u = Integer.parseInt(txtUnidades.getText().trim());
                 
-                if (u < 0) throw new IllegalArgumentException("Unidades no pueden ser negativas");
+                int total = gestionHuevos.setHuevos(t, p, c, g, u);
                 
-                int totalEnPuesto = gestionHuevos.setHuevos(t, p, c, g, u);
-                resArea.setText("Puesta registrada.\nTotal acumulado en este puesto: " + totalEnPuesto + 
-                                "\nFecha Envasado: " + gestionHuevos.getFechaEnvasadoFormateada() + 
-                                "\nCaducidad: " + gestionHuevos.getFechaCaducidadFormateada());
-                System.out.println("Registrada puesta en [" + t + "][" + p + "][" + c + "][" + g + "]: " + u + " uds");
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                JOptionPane.showMessageDialog(this, "Índice fuera de rango: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                String resultado = String.format(
+                    "✅ Puesta registrada\n" +
+                    "📍 Ubicación: [Tipo:%d][Prov:%d][Ciudad:%d][Granja:%d]\n" +
+                    "🥚 Unidades: %d\n" +
+                    "📊 Total acumulado: %d\n" +
+                    "📅 Envasado: %s\n" +
+                    "⏳ Caduca: %s\n" +
+                    "📅 Días restantes: %d",
+                    t, p, c, g, u, total,
+                    gestionHuevos.getFechaEnvasadoFormateada(),
+                    gestionHuevos.getFechaCaducidadFormateada(),
+                    gestionHuevos.diasHastaCaducidad()
+                );
+                
+                infoArea.setText(resultado);
+                
+                // Limpiar campos
+                txtTipo.setText("");
+                txtProv.setText("");
+                txtCiudad.setText("");
+                txtGranja.setText("");
+                txtUnidades.setText("");
+                
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        panel.add(grid, BorderLayout.NORTH);
-        panel.add(new JScrollPane(resArea), BorderLayout.CENTER);
-        panel.add(btnGenerar, BorderLayout.SOUTH);
-
+        panel.add(formPanel, BorderLayout.NORTH);
+        panel.add(btnRegistrar, BorderLayout.SOUTH);
+        
         return panel;
     }
 
     public static void main(String[] args) {
-        // Configurar Look and Feel nativo del sistema
+        // Configurar para evitar problemas con X11
+        System.setProperty("java.awt.headless", "false");
+        
+        // Intentar ejecutar la GUI
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            SwingUtilities.invokeLater(() -> {
+                MainApp app = new MainApp();
+                app.setVisible(true);
+            });
         } catch (Exception e) {
-            System.err.println("Error al configurar el Look and Feel: " + e.getMessage());
+            System.err.println("========================================");
+            System.err.println("ERROR: No se pudo iniciar la interfaz gráfica");
+            System.err.println("Causa: " + e.getMessage());
+            System.err.println("========================================");
+            System.err.println("\nSOLUCIONES PARA LINUX:");
+            System.err.println("1. Verifica que tienes entorno gráfico:");
+            System.err.println("   echo $DISPLAY  (debe mostrar :0 o similar)");
+            System.err.println("2. Si no hay display, configura:");
+            System.err.println("   export DISPLAY=:0");
+            System.err.println("3. Dale permisos al X server:");
+            System.err.println("   xhost +local:");
+            System.err.println("4. Luego ejecuta:");
+            System.err.println("   DISPLAY=:0 mvn exec:java");
+            System.err.println("\nSi prefieres usar consola:");
+            System.err.println("   mvn compile && java -cp target/classes com.gallinaceas.MainAppConsole");
         }
-
-        SwingUtilities.invokeLater(() -> {
-            try {
-                new MainApp().setVisible(true);
-            } catch (Exception e) {
-                System.err.println("Error al iniciar la aplicación: " + e.getMessage());
-                JOptionPane.showMessageDialog(null, "Error crítico al iniciar la aplicación: " + e.getMessage());
-            }
-        });
     }
 }
