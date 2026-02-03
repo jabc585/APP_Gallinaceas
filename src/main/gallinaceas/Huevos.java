@@ -1,24 +1,42 @@
 package com.gallinaceas;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-public class Huevos extends Gallinaceas {
-
-    Date fecha = new Date();
-    DateFormat df1 = DateFormat.getDateInstance(DateFormat.SHORT);
-    String fecha_envasado = df1.format(fecha);
-    SimpleDateFormat formatod = new SimpleDateFormat("dd");
-
-    int dia_caducidad = Integer.parseInt(formatod.format(fecha)) + 7;
-
-    int codpuesta[][][][] = new int[4][100][1000][100];	
-                    //Gallina-Prov-Ciudad-Granja
-
-    public int setHuevos(int tipogall, int provincia, int ciudad, 
-            int granja, int uds) {
-        return codpuesta[tipogall][provincia][ciudad][granja] += uds;
-    }	
-
+public class Huevos extends Producto {
+    private final int[][][][] registroPuesta = new int[4][100][1000][100];
+    
+    public Huevos() {
+        super(7); // Caduca en 7 días
+    }
+    
+    public void registrarPuesta(int tipoGallina, int provincia, int ciudad, 
+                               int granja, int unidades) {
+        validarIndices(tipoGallina, provincia, ciudad, granja);
+        
+        if (unidades < 0) {
+            throw new IllegalArgumentException("Las unidades no pueden ser negativas");
+        }
+        
+        registroPuesta[tipoGallina][provincia][ciudad][granja] += unidades;
+    }
+    
+    public int obtenerPuesta(int tipoGallina, int provincia, int ciudad, int granja) {
+        validarIndices(tipoGallina, provincia, ciudad, granja);
+        return registroPuesta[tipoGallina][provincia][ciudad][granja];
+    }
+    
+    private void validarIndices(int tipoGallina, int provincia, int ciudad, int granja) {
+        if (tipoGallina < 0 || tipoGallina >= 4) throw new IllegalArgumentException("Tipo gallina inválido");
+        if (provincia < 0 || provincia >= 100) throw new IllegalArgumentException("Provincia inválida");
+        if (ciudad < 0 || ciudad >= 1000) throw new IllegalArgumentException("Ciudad inválida");
+        if (granja < 0 || granja >= 100) throw new IllegalArgumentException("Granja inválida");
+    }
+    
+    @Override
+    public String toString() {
+        return String.format(
+            "Huevos [Envasado: %s | Caduca: %s | Días restantes: %d]",
+            getFechaEnvasadoFormateada(),
+            getFechaCaducidadFormateada(),
+            diasHastaCaducidad()
+        );
+    }
 }
