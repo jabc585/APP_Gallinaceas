@@ -2,16 +2,15 @@ package com.gallinaceas;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class Producto {
     private final LocalDate fechaEnvasado;
     private final LocalDate fechaCaducidad;
-    private final int diasCaducidad;
     private final String nombre;
     
     public Producto(String nombre, int diasCaducidad) {
         this.nombre = nombre;
-        this.diasCaducidad = diasCaducidad;
         this.fechaEnvasado = LocalDate.now();
         this.fechaCaducidad = fechaEnvasado.plusDays(diasCaducidad);
     }
@@ -21,15 +20,15 @@ public class Producto {
     }
     
     public int diasHastaCaducidad() {
-        return Math.max(0, (int) java.time.temporal.ChronoUnit.DAYS.between(
-            LocalDate.now(), fechaCaducidad));
+        return (int) Math.max(0, ChronoUnit.DAYS.between(LocalDate.now(), fechaCaducidad));
     }
     
     public String getInfo() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return String.format("%s [Envasado: %s | Caduca: %s | Días restantes: %d]",
             nombre,
-            fechaEnvasado.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-            fechaCaducidad.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+            fechaEnvasado.format(formatter),
+            fechaCaducidad.format(formatter),
             diasHastaCaducidad());
     }
 }
