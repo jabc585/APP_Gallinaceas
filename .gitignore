@@ -1,0 +1,24 @@
+# Ignorar carpetas de compilación
+target/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+
+# Archivos de IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Archivos temporales de compilación
+*.class
+*.jar
+*.war
+*.ear
+
+# Ignorar dependencias descargadas (opcional)
+*.jar
