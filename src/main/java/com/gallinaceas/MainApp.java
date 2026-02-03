@@ -88,7 +88,10 @@ public class MainApp extends JFrame {
         btnCalcular.addActionListener(e -> {
             try {
                 String texto = txtKilos.getText().trim();
-                if (texto.isEmpty()) return;
+                if (texto.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Por favor, introduzca los kilos", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
                 int kilos = Integer.parseInt(texto);
                 if (kilos < 0) throw new IllegalArgumentException("Los kilos no pueden ser negativos");
                 gestionCarne.stock_carne(kilos);
@@ -139,6 +142,13 @@ public class MainApp extends JFrame {
         JButton btnGenerar = new JButton("Registrar Puesta");
         btnGenerar.addActionListener(e -> {
             try {
+                if (txtTipo.getText().trim().isEmpty() || txtProv.getText().trim().isEmpty() || 
+                    txtCiudad.getText().trim().isEmpty() || txtGranja.getText().trim().isEmpty() || 
+                    txtUds.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                
                 int t = Integer.parseInt(txtTipo.getText().trim());
                 int p = Integer.parseInt(txtProv.getText().trim());
                 int c = Integer.parseInt(txtCiudad.getText().trim());
@@ -168,16 +178,28 @@ public class MainApp extends JFrame {
 
     public static void main(String[] args) {
         try {
-            Properties props = new Properties();
+            // Se usa reflexión para evitar NoClassDefFoundError si la librería no está
+            Class<?> clazz = Class.forName("com.jtattoo.plaf.mcwin.McWinLookAndFeel");
+            java.util.Properties props = new java.util.Properties();
             props.put("logoString", "Gallinas S.A.");
-            com.jtattoo.plaf.mcwin.McWinLookAndFeel.setCurrentTheme(props);
+            
+            java.lang.reflect.Method setTheme = clazz.getMethod("setCurrentTheme", java.util.Properties.class);
+            setTheme.invoke(null, props);
+            
             UIManager.setLookAndFeel("com.jtattoo.plaf.mcwin.McWinLookAndFeel");
+        } catch (ClassNotFoundException e) {
+            logger.warn("Librería JTattoo no encontrada en el classpath, se usará el tema por defecto.");
         } catch (Exception e) {
             logger.error("Error cargando LookAndFeel", e);
         }
 
         SwingUtilities.invokeLater(() -> {
-            new MainApp().setVisible(true);
+            try {
+                new MainApp().setVisible(true);
+            } catch (Exception e) {
+                logger.error("Error al iniciar la aplicación", e);
+                JOptionPane.showMessageDialog(null, "Error crítico al iniciar la aplicación: " + e.getMessage());
+            }
         });
     }
 }
