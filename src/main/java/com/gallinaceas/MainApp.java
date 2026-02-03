@@ -2,8 +2,7 @@ package com.gallinaceas;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 
 public class MainApp extends JFrame {
     
@@ -227,13 +226,13 @@ public class MainApp extends JFrame {
                 int total = gestionHuevos.setHuevos(t, p, c, g, u);
                 
                 String resultado = String.format(
-                    "✅ Puesta registrada\n" +
-                    "📍 Ubicación: [Tipo:%d][Prov:%d][Ciudad:%d][Granja:%d]\n" +
-                    "🥚 Unidades: %d\n" +
-                    "📊 Total acumulado: %d\n" +
-                    "📅 Envasado: %s\n" +
-                    "⏳ Caduca: %s\n" +
-                    "📅 Días restantes: %d",
+                    " Puesta registrada\n" +
+                    " Ubicación: [Tipo:%d][Prov:%d][Ciudad:%d][Granja:%d]\n" +
+                    " Unidades: %d\n" +
+                    " Total acumulado: %d\n" +
+                    " Envasado: %s\n" +
+                    " Caduca: %s\n" +
+                    " Días restantes: %d",
                     t, p, c, g, u, total,
                     gestionHuevos.getFechaEnvasadoFormateada(),
                     gestionHuevos.getFechaCaducidadFormateada(),
