@@ -2,35 +2,34 @@ package com.gallinaceas;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 
-public abstract class Producto {
+public class Producto {
     private final LocalDate fechaEnvasado;
     private final LocalDate fechaCaducidad;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final int diasCaducidad;
+    private final String nombre;
     
-    protected Producto(int diasCaducidad) {
+    public Producto(String nombre, int diasCaducidad) {
+        this.nombre = nombre;
+        this.diasCaducidad = diasCaducidad;
         this.fechaEnvasado = LocalDate.now();
-        this.fechaCaducidad = this.fechaEnvasado.plusDays(diasCaducidad);
-    }
-    
-    public long diasHastaCaducidad() {
-        return ChronoUnit.DAYS.between(LocalDate.now(), fechaCaducidad);
+        this.fechaCaducidad = fechaEnvasado.plusDays(diasCaducidad);
     }
     
     public boolean estaCaducado() {
         return LocalDate.now().isAfter(fechaCaducidad);
     }
     
-    // Getters
-    public String getFechaEnvasadoFormateada() {
-        return fechaEnvasado.format(FORMATTER);
+    public int diasHastaCaducidad() {
+        return Math.max(0, (int) java.time.temporal.ChronoUnit.DAYS.between(
+            LocalDate.now(), fechaCaducidad));
     }
     
-    public String getFechaCaducidadFormateada() {
-        return fechaCaducidad.format(FORMATTER);
+    public String getInfo() {
+        return String.format("%s [Envasado: %s | Caduca: %s | Días restantes: %d]",
+            nombre,
+            fechaEnvasado.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+            fechaCaducidad.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+            diasHastaCaducidad());
     }
-    
-    @Override
-    public abstract String toString();
 }
