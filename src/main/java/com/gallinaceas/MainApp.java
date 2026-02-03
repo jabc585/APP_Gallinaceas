@@ -2,13 +2,9 @@ package com.gallinaceas;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MainApp extends JFrame {
-
-    private static final Logger logger = LoggerFactory.getLogger(MainApp.class);
+    
     private static final int WINDOW_WIDTH = 600;
     private static final int WINDOW_HEIGHT = 450;
     
@@ -59,7 +55,7 @@ public class MainApp extends JFrame {
                     if (nuevos < 0) throw new IllegalArgumentException("No puede ser negativo");
                     empresa.total_emp(nuevos);
                     infoArea.setText(empresa.toString());
-                    logger.info("Registrados {} nuevos empleados", nuevos);
+                    System.out.println("Registrados " + nuevos + " nuevos empleados");
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this, "Número inválido", "Error", JOptionPane.ERROR_MESSAGE);
                 } catch (IllegalArgumentException ex) {
@@ -96,7 +92,7 @@ public class MainApp extends JFrame {
                 if (kilos < 0) throw new IllegalArgumentException("Los kilos no pueden ser negativos");
                 gestionCarne.stock_carne(kilos);
                 resArea.setText(gestionCarne.toString());
-                logger.info("Actualizado stock de carne: +{} kg", kilos);
+                System.out.println("Actualizado stock de carne: +" + kilos + " kg");
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Introduzca un número válido", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (IllegalArgumentException ex) {
@@ -161,7 +157,7 @@ public class MainApp extends JFrame {
                 resArea.setText("Puesta registrada.\nTotal acumulado en este puesto: " + totalEnPuesto + 
                                 "\nFecha Envasado: " + gestionHuevos.getFechaEnvasadoFormateada() + 
                                 "\nCaducidad: " + gestionHuevos.getFechaCaducidadFormateada());
-                logger.info("Registrada puesta en [{}][{}][{}][{}]: {} uds", t, p, c, g, u);
+                System.out.println("Registrada puesta en [" + t + "][" + p + "][" + c + "][" + g + "]: " + u + " uds");
             } catch (ArrayIndexOutOfBoundsException ex) {
                 JOptionPane.showMessageDialog(this, "Índice fuera de rango: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
@@ -177,30 +173,20 @@ public class MainApp extends JFrame {
     }
 
     public static void main(String[] args) {
+        // Configurar Look and Feel nativo del sistema
         try {
-            // Se usa reflexión para evitar NoClassDefFoundError si la librería no está
-            Class<?> clazz = Class.forName("com.jtattoo.plaf.mcwin.McWinLookAndFeel");
-            java.util.Properties props = new java.util.Properties();
-            props.put("logoString", "Gallinas S.A.");
-            
-            java.lang.reflect.Method setTheme = clazz.getMethod("setCurrentTheme", java.util.Properties.class);
-            setTheme.invoke(null, props);
-            
-            UIManager.setLookAndFeel("com.jtattoo.plaf.mcwin.McWinLookAndFeel");
-        } catch (ClassNotFoundException e) {
-            logger.warn("Librería JTattoo no encontrada en el classpath, se usará el tema por defecto.");
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            logger.error("Error cargando LookAndFeel", e);
+            System.err.println("Error al configurar el Look and Feel: " + e.getMessage());
         }
 
         SwingUtilities.invokeLater(() -> {
             try {
                 new MainApp().setVisible(true);
             } catch (Exception e) {
-                logger.error("Error al iniciar la aplicación", e);
+                System.err.println("Error al iniciar la aplicación: " + e.getMessage());
                 JOptionPane.showMessageDialog(null, "Error crítico al iniciar la aplicación: " + e.getMessage());
             }
         });
     }
 }
-
