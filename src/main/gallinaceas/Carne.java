@@ -1,29 +1,40 @@
 package com.gallinaceas;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-public class Carne extends Gallinaceas {
-
-    Date fecha = new Date();
-    DateFormat df1 = DateFormat.getDateInstance(DateFormat.SHORT);
-    String fecha_envasado = df1.format(fecha);
-    SimpleDateFormat formatod = new SimpleDateFormat("dd");
-
-    int dia_caducidad = Integer.parseInt(formatod.format(fecha)) + 4;
-    int stock_c = 1000;
-
+public class Carne extends Producto {
+    private int stock;
+    
+    public Carne() {
+        super(4); // Caduca en 4 días
+        this.stock = 1000;
+    }
+    
+    public void agregarStock(int kilos) {
+        if (kilos < 0) {
+            throw new IllegalArgumentException("Los kilos no pueden ser negativos");
+        }
+        this.stock += kilos;
+    }
+    
+    public boolean retirarStock(int kilos) {
+        if (kilos <= 0 || kilos > stock) {
+            return false;
+        }
+        this.stock -= kilos;
+        return true;
+    }
+    
+    public int getStock() {
+        return stock;
+    }
+    
     @Override
     public String toString() {
-        return "El stock de la carne de fecha de envasado " + 
-                this.fecha_envasado + " con caducidad "
-                + this.dia_caducidad + " del mismo mes, es de " + 
-                this.stock_c + " kg";
+        return String.format(
+            "Carne [Envasado: %s | Caduca: %s | Stock: %d kg | Días restantes: %d]",
+            getFechaEnvasadoFormateada(),
+            getFechaCaducidadFormateada(),
+            stock,
+            diasHastaCaducidad()
+        );
     }
-
-    public int stock_carne(int kilos) {
-        return stock_c += kilos;
-    }
-
 }
